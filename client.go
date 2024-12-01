@@ -45,6 +45,10 @@ func NewClient() (*AOCClient, error) {
 // It sends an authenticated HTTP GET request using the session cookie and returns the input as a slice of strings.
 // Returns an error if the request fails or the input cannot be read.
 func (c *AOCClient) GetInput(year, day int) ([]string, error) {
+	if !puzzleExists(year, day) {
+		return nil, fmt.Errorf("puzzle %d-%d does not exist", year, day)
+	}
+
 	url := fmt.Sprintf(
 		"https://adventofcode.com/%d/day/%d/input",
 		year,
@@ -77,4 +81,19 @@ func (c *AOCClient) GetInput(year, day int) ([]string, error) {
 	}
 
 	return lines, nil
+}
+
+// puzzleExists determines if a puzzle exists for the given year and day within the Advent of Code event timeline.
+// It verifies that the year is within the valid Advent of Code range (2015 to 2024)
+// and that the day is a valid calendar day for the event (1 to 25).
+func puzzleExists(year, day int) bool {
+	if year < 2015 || year > 2024 {
+		return false
+	}
+
+	if day < 1 || day > 25 {
+		return false
+	}
+
+	return true
 }
