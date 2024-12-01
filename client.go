@@ -9,6 +9,7 @@ import (
 )
 
 type AOCClient struct {
+	cookie string
 	client *http.Client
 }
 
@@ -18,7 +19,13 @@ func NewClient() (*AOCClient, error) {
 		return nil, err
 	}
 
+	session, ok := os.LookupEnv("AOC_COOKIE")
+	if !ok {
+		return nil, fmt.Errorf("AOC_COOKIE env variable not set")
+	}
+
 	aocClient := AOCClient{
+		cookie: session,
 		client: &http.Client{
 			Jar:       cookiejar,
 			Transport: &http.Transport{},
@@ -43,7 +50,7 @@ func (c *AOCClient) GetInput(year, day int) ([]string, error) {
 	c.client.Jar.SetCookies(req.URL, []*http.Cookie{
 		{
 			Name:  "session",
-			Value: os.Getenv("AOC_COOKIE"),
+			Value: c.cookie,
 		},
 	})
 
